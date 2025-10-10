@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const stripe = new Stripe(stripeSecretKey, {
-            apiVersion: "2024-12-18.acacia",
+            apiVersion: "2025-09-30.clover",
         });
 
         // Stripe Product & Price ID mapping
@@ -72,10 +72,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const lineItems = [];
 
         for (const [cartKey, quantity] of Object.entries(cart)) {
-            const stripeMapping = STRIPE_PRODUCTS[cartKey];
+            console.log(`Processing cart item: ${cartKey}`);
+            
+            // Parse cart key to get product ID and variant/size
+            const parts = cartKey.split('-');
+            const productId = parts[0];
+            const variantOrSize = parts.length > 1 ? parts.slice(1).join('-') : undefined;
+            
+            let stripeMapping;
+            
+            // For raffle tickets, use the full cart key (e.g., "4-1-ticket")
+            if (productId === '4') {
+                stripeMapping = STRIPE_PRODUCTS[cartKey];
+            } else {
+                // For apparel items, use just the product ID (e.g., "1", "2", "3")
+                stripeMapping = STRIPE_PRODUCTS[productId];
+            }
             
             if (!stripeMapping || !stripeMapping.priceId) {
-                console.warn(`No Stripe price found for cart item: ${cartKey}`);
+                console.warn(`No Stripe price found for cart item: ${cartKey} (productId: ${productId})`);
                 continue;
             }
 
@@ -84,18 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 quantity: Number(quantity),
             };
 
-            // Add size as metadata for apparel items
-            const parts = cartKey.split('-');
-            const productId = parts[0];
-            const variantOrSize = parts.length > 1 ? parts.slice(1).join('-') : undefined;
-            
-            if (variantOrSize && ['1', '2', '3'].includes(productId)) {
-                // For apparel items with sizes, we still use the price ID but add metadata
-                lineItem.metadata = {
-                    size: variantOrSize,
-                };
-            }
-
+            console.log(`Added line item for ${cartKey}: price ${stripeMapping.priceId}, quantity ${quantity}`);
             lineItems.push(lineItem);
         }
 
@@ -113,7 +117,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             quantity: 1,
         });
 
-        console.log(`🛒 Creating checkout session for ${lineItems.length} items using Stripe product IDs`);
+        if (lineItems.length === 1) { // Only shipping
+            console.error("❌ No valid products found in cart");
+            return res.status(400).json({
+                error: "No valid products found in cart",
+            });
+        }
+
+        console.log(`🛒 Creating checkout session for ${lineItems.length - 1} products + shipping using Stripe product IDs`);
 
         // Create checkout session with Connect account
         const session = await stripe.checkout.sessions.create({
