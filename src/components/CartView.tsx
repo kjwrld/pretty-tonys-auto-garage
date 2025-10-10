@@ -1,8 +1,8 @@
 import { X, Plus, Minus, Trash2 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Product } from './ProductCard';
-import { StripeCheckout } from './StripeCheckout';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CartViewProps {
   cart: Map<string, number>;
@@ -13,7 +13,42 @@ interface CartViewProps {
 }
 
 export function CartView({ cart, products, onClose, onUpdateQuantity, onRemoveItem }: CartViewProps) {
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    
+    try {
+      // Convert cart Map to object for API
+      const cartObject = Object.fromEntries(cart);
+      
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cart: cartObject,
+          currency: 'usd',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe checkout
+      window.location.href = url;
+      
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   const cartItems = Array.from(cart.entries()).map(([cartKey, quantity]) => {
     const parts = cartKey.split('-');
     const productId = parts[0];
@@ -265,8 +300,9 @@ export function CartView({ cart, products, onClose, onUpdateQuantity, onRemoveIt
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-red-500 transition-all group-hover:w-6 group-hover:h-6" />
                 
                 <button 
-                  onClick={() => setShowCheckout(true)}
-                  className="relative w-full border-4 border-black bg-black text-white py-4 hover:bg-red-500 hover:border-red-500 transition-all duration-300 overflow-hidden"
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="relative w-full border-4 border-black bg-black text-white py-4 hover:bg-red-500 hover:border-red-500 transition-all duration-300 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {/* Scan line effect */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -303,12 +339,6 @@ export function CartView({ cart, products, onClose, onUpdateQuantity, onRemoveIt
         </div>
       </div>
 
-      <StripeCheckout
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        cart={cart}
-        products={products}
-      />
     </div>
   );
 }
