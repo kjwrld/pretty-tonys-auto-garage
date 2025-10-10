@@ -106,12 +106,16 @@ export function StripeCheckout({ isOpen, onClose, cart, products }: StripeChecko
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby="checkout-description">
         <DialogHeader>
           <DialogTitle className="text-center uppercase tracking-wider">
             Checkout Summary
           </DialogTitle>
         </DialogHeader>
+        
+        <div id="checkout-description" className="sr-only">
+          Complete your purchase for Pretty Tony's Autoshop merchandise
+        </div>
         
         <div className="space-y-4">
           {/* Cart Items */}

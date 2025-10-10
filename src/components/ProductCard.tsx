@@ -23,7 +23,7 @@ export interface Product {
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (productId: string, variantId?: string) => void;
+  onAddToCart: (productId: string, quantity: number, variantOrSize?: string) => void;
   onClick: (productId: string) => void;
 }
 
@@ -76,7 +76,12 @@ export function ProductCard({ product, onAddToCart, onClick }: ProductCardProps)
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onAddToCart(product.id);
+            // For raffle tickets (product id 4), default to 1-ticket variant
+            if (product.id === '4' && product.variants) {
+              onAddToCart(product.id, 1, '1-ticket');
+            } else {
+              onAddToCart(product.id, 1);
+            }
           }}
           className="absolute top-3 right-3 p-2 border-2 border-black bg-white hover:bg-red-500 hover:border-red-500 transition-all z-20 group/cart"
           aria-label="Add to cart"
