@@ -126,6 +126,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         console.log(`🛒 Creating checkout session for ${lineItems.length - 1} products + shipping using Stripe product IDs`);
         console.log(`Using Connect account: ${connectAccountId}`);
+        console.log(`STRIPE_POLO_PRICE_ID: ${process.env.STRIPE_POLO_PRICE_ID}`);
+        console.log(`STRIPE_RAFFLE_1_PRICE_ID: ${process.env.STRIPE_RAFFLE_1_PRICE_ID}`);
         console.log(`Line items:`, JSON.stringify(lineItems, null, 2));
 
         // Create checkout session with Connect account
