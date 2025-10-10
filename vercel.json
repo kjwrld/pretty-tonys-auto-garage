@@ -1,4 +1,6 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -6,9 +8,6 @@
     }
   ],
   "env": {
-    "STRIPE_SECRET_KEY": "placeholder",
-    "STRIPE_CONNECT_ACCOUNT_ID": "@stripe-connect-account-id",
-    "STRIPE_WEBHOOK_SECRET": "placeholder",
     "STRIPE_RAFFLE_1_PRODUCT_ID": "prod_TDChrkqJL0gMTB",
     "STRIPE_RAFFLE_1_PRICE_ID": "price_1SGmIQ4C6DRgLInIceuya1jN",
     "STRIPE_RAFFLE_3_PRODUCT_ID": "prod_TDCmHheT1kdsGE",
@@ -20,8 +19,6 @@
     "STRIPE_CAP_PRODUCT_ID": "prod_TDCRJSDPCttw5H",
     "STRIPE_CAP_PRICE_ID": "price_1SGm2T4C6DRgLInIaxERxsjE",
     "STRIPE_POLO_PRODUCT_ID": "prod_TD9a9urROpiVMZ",
-    "STRIPE_POLO_PRICE_ID": "price_1SGjHc4C6DRgLInIvzDwpnsu",
-    "MAILCHIMP_API_KEY": "placeholder",
-    "MAILCHIMP_AUDIENCE_ID": "placeholder"
+    "STRIPE_POLO_PRICE_ID": "price_1SGjHc4C6DRgLInIvzDwpnsu"
   }
 }

@@ -55,7 +55,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             merge_fields: {
                 FNAME: firstName,
                 LNAME: lastName || "",
-                LASTPURCH: amount.toString(),
                 PHONE: shippingAddress?.phone || "",
             },
             tags: ["customer", "purchased"],
@@ -92,7 +91,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         merge_fields: {
                             FNAME: firstName,
                             LNAME: lastName || "",
-                            LASTPURCH: amount.toString(),
                             PHONE: shippingAddress?.phone || "",
                         },
                         tags: ["customer", "purchased"],
