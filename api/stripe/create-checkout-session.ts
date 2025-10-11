@@ -38,41 +38,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             apiVersion: "2025-09-30.clover",
         });
 
-        // Stripe Product & Price ID mapping
-        const STRIPE_PRODUCTS = {
+        // Product mapping for analytics and pricing
+        const PRODUCTS = {
             // Raffle Tickets
             "4-1-ticket": {
-                priceId: process.env.STRIPE_RAFFLE_1_PRICE_ID,
+                name: "10 Piece Lucky Raffle Ticket",
+                description: "Single raffle ticket for 10 Piece Tone merch giveaway",
+                price: 10.00,
                 productId: process.env.STRIPE_RAFFLE_1_PRODUCT_ID,
             },
             "4-3-tickets": {
-                priceId: process.env.STRIPE_RAFFLE_3_PRICE_ID,
+                name: "10 Piece Lucky Raffle Tickets (3)",
+                description: "3 raffle tickets for 10 Piece Tone merch giveaway",
+                price: 25.00,
                 productId: process.env.STRIPE_RAFFLE_3_PRODUCT_ID,
             },
             "4-10-tickets": {
-                priceId: process.env.STRIPE_RAFFLE_10_PRICE_ID,
+                name: "10 Piece Lucky Raffle Tickets (10)",
+                description: "10 raffle tickets for 10 Piece Tone merch giveaway",
+                price: 75.00,
                 productId: process.env.STRIPE_RAFFLE_10_PRODUCT_ID,
             },
-            // Apparel (sizes handled as metadata)
+            // Apparel
             "3": {
-                // White Graphic Tee
-                priceId: process.env.STRIPE_TEE_PRICE_ID,
+                name: "Auto Garage Tee",
+                description: "Premium white graphic tee",
+                price: 25.00,
                 productId: process.env.STRIPE_TEE_PRODUCT_ID,
             },
             "2": {
-                // Red Racing Hat
-                priceId: process.env.STRIPE_CAP_PRICE_ID,
+                name: "Tony's Race Cap",
+                description: "Red racing cap with Pretty Tony's logo",
+                price: 20.00,
                 productId: process.env.STRIPE_CAP_PRODUCT_ID,
             },
             "1": {
-                // Classic Polo Shirt
-                priceId: process.env.STRIPE_POLO_PRICE_ID,
+                name: "Tony's Classic Polo Shirt",
+                description: "Classic polo shirt with embroidered logo",
+                price: 35.00,
                 productId: process.env.STRIPE_POLO_PRODUCT_ID,
             },
         };
 
         // Build line items from cart using Stripe prices
         const lineItems = [];
+
+        let subtotal = 0;
 
         for (const [cartKey, quantity] of Object.entries(cart)) {
             console.log(`Processing cart item: ${cartKey}`);
@@ -83,43 +94,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const variantOrSize =
                 parts.length > 1 ? parts.slice(1).join("-") : undefined;
 
-            let stripeMapping;
+            let productMapping;
 
             // For raffle tickets, use the full cart key (e.g., "4-1-ticket")
             if (productId === "4") {
-                stripeMapping = STRIPE_PRODUCTS[cartKey];
+                productMapping = PRODUCTS[cartKey];
             } else {
                 // For apparel items, use just the product ID (e.g., "1", "2", "3")
-                stripeMapping = STRIPE_PRODUCTS[productId];
+                productMapping = PRODUCTS[productId];
             }
 
-            if (!stripeMapping || !stripeMapping.priceId) {
+            if (!productMapping) {
                 console.warn(
-                    `No Stripe price found for cart item: ${cartKey} (productId: ${productId})`
+                    `No product mapping found for cart item: ${cartKey} (productId: ${productId})`
                 );
                 continue;
             }
 
+            const itemTotal = productMapping.price * Number(quantity);
+            subtotal += itemTotal;
+
             const lineItem = {
-                price: stripeMapping.priceId,
+                price_data: {
+                    currency: currency,
+                    product_data: {
+                        name: productMapping.name,
+                        description: productMapping.description,
+                        metadata: {
+                            platform_product_id: productMapping.productId,
+                            cart_key: cartKey,
+                            size: variantOrSize || '',
+                        },
+                    },
+                    unit_amount: Math.round(productMapping.price * 100),
+                },
                 quantity: Number(quantity),
             };
 
             console.log(
-                `Added line item for ${cartKey}: price ${stripeMapping.priceId}, quantity ${quantity}`
+                `Added line item for ${cartKey}: ${productMapping.name} $${productMapping.price} x${quantity}`
             );
             lineItems.push(lineItem);
         }
 
         // Add shipping as a separate line item
         const shippingAmount = 10.0;
+        subtotal += shippingAmount;
+        
         lineItems.push({
             price_data: {
                 currency: currency,
                 product_data: {
                     name: "Shipping",
-                    description:
-                        "Standard shipping for your Pretty Tony's order",
+                    description: "Standard shipping for your Pretty Tony's order",
                 },
                 unit_amount: Math.round(shippingAmount * 100),
             },
@@ -134,21 +161,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
         }
 
-        console.log(
-            `🛒 Creating checkout session for ${
-                lineItems.length - 1
-            } products + shipping using Stripe product IDs`
-        );
+        // Calculate 5% application fee on total (including shipping)
+        const applicationFee = Math.round(subtotal * 0.05 * 100); // 5% in cents
+
+        console.log(`🛒 Creating checkout session for ${lineItems.length - 1} products + shipping`);
+        console.log(`Subtotal: $${subtotal.toFixed(2)}`);
+        console.log(`Application fee (5%): $${(applicationFee / 100).toFixed(2)}`);
         console.log(`Using Connect account: ${connectAccountId}`);
-        console.log(
-            `STRIPE_POLO_PRICE_ID: ${process.env.STRIPE_POLO_PRICE_ID}`
-        );
-        console.log(
-            `STRIPE_RAFFLE_1_PRICE_ID: ${process.env.STRIPE_RAFFLE_1_PRICE_ID}`
-        );
         console.log(`Line items:`, JSON.stringify(lineItems, null, 2));
 
-        // Create checkout session with Connect account
+        // Create checkout session with Connect account and application fee
         const session = await stripe.checkout.sessions.create(
             {
                 payment_method_types: ["card"],
@@ -160,16 +182,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 cancel_url: `${
                     req.headers.origin || "http://localhost:3001"
                 }/?canceled=true`,
+                payment_intent_data: {
+                    application_fee_amount: applicationFee,
+                },
                 metadata: {
-                    source: "pretty-tonys",
+                    source: "pretty-tonys-autoshop",
                     cart_data: JSON.stringify(cart),
+                    platform_fee: (applicationFee / 100).toFixed(2),
                 },
                 shipping_address_collection: {
                     allowed_countries: ["US", "CA"],
                 },
             },
             {
-                stripeAccount: connectAccountId, // Use Connect account
+                stripeAccount: connectAccountId, // Direct charge to Connect account
             }
         );
 
