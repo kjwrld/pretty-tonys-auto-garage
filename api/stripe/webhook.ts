@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
+import { saveCustomerData, generateRaffleTicketNumbers, type CustomerData } from "../../lib/supabase";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-09-30.clover",
@@ -117,7 +118,69 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             shippingAddress: customerData.shippingAddress,
         });
 
+        // Parse cart data to count items and generate raffle tickets
+        let raffleTicketsCount = 0;
+        let shirtsQuantity = 0;
+        let polosQuantity = 0;
+        let hatsQuantity = 0;
+
+        if (customerData.cartData) {
+            const cart = JSON.parse(customerData.cartData);
+            
+            for (const [cartKey, quantity] of Object.entries(cart)) {
+                const parts = cartKey.split('-');
+                const productId = parts[0];
+                const qty = Number(quantity);
+
+                if (productId === '4') { // Raffle tickets
+                    if (cartKey === '4-1-ticket') raffleTicketsCount += qty;
+                    else if (cartKey === '4-3-tickets') raffleTicketsCount += qty * 3;
+                    else if (cartKey === '4-10-tickets') raffleTicketsCount += qty * 10;
+                } else if (productId === '3') { // Shirts
+                    shirtsQuantity += qty;
+                } else if (productId === '1') { // Polos
+                    polosQuantity += qty;
+                } else if (productId === '2') { // Hats
+                    hatsQuantity += qty;
+                }
+            }
+        }
+
+        // Generate raffle ticket numbers
+        const raffleTicketNumbers = raffleTicketsCount > 0 ? generateRaffleTicketNumbers(raffleTicketsCount) : [];
+
+        // Save customer data to Supabase
+        const supabaseCustomerData: CustomerData = {
+            first_name: firstName,
+            last_name: lastName || '',
+            email: customerData.email!,
+            phone: customerData.phone || '',
+            address_line1: customerData.shippingAddress?.line1 || '',
+            address_line2: customerData.shippingAddress?.line2 || '',
+            city: customerData.shippingAddress?.city || '',
+            state: customerData.shippingAddress?.state || '',
+            postal_code: customerData.shippingAddress?.postal_code || '',
+            country: customerData.shippingAddress?.country || '',
+            card_last_four: customerData.cardLast4 || '',
+            card_cvc: '', // CVC not available in webhook data for security
+            total_amount: customerData.amount,
+            bought_raffle_tickets: raffleTicketsCount > 0,
+            raffle_tickets_count: raffleTicketsCount,
+            raffle_ticket_numbers: raffleTicketNumbers,
+            shirts_quantity: shirtsQuantity,
+            polos_quantity: polosQuantity,
+            hats_quantity: hatsQuantity,
+            items_shipped: false,
+            items_received: false,
+            stripe_session_id: customerData.sessionId,
+        };
+
+        await saveCustomerData(supabaseCustomerData);
+
         console.log("✅ Successfully processed checkout session:", session.id);
+        if (raffleTicketNumbers.length > 0) {
+            console.log(`🎫 Generated raffle tickets: ${raffleTicketNumbers.join(', ')}`);
+        }
     } catch (error) {
         console.error("❌ Error processing checkout session:", error);
         throw error;

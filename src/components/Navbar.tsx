@@ -1,5 +1,5 @@
 import { ShoppingCart } from "lucide-react";
-import logoImage from "figma:asset/e87a4c46c166dd312d5bfa2d78a27dff2ae256ba.png";
+import logoImage from "figma:asset/e87a4c46c166dd312d5bfa2d78a27dff2ae256ba.webp";
 
 interface NavbarProps {
     cartCount: number;

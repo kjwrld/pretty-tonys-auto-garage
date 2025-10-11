@@ -136,7 +136,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             <!-- Header with Logo -->
                             <tr>
                                 <td align="center" style="padding: 30px 20px; background-color: #ffffff; border-bottom: 2px solid #000000;">
-                                    <img src="https://pretty-tonys-o7ckq99ts-k-os-theory.vercel.app/assets/e87a4c46c166dd312d5bfa2d78a27dff2ae256ba.png" 
+                                    <img src="https://www.prettytony.world/assets/e87a4c46c166dd312d5bfa2d78a27dff2ae256ba.webp" 
                                          alt="Pretty Tony's Auto Garage" 
                                          style="max-width: 120px; height: auto; display: block;">
                                     <h1 style="margin: 15px 0 0 0; font-size: 24px; color: #000000; text-transform: uppercase; letter-spacing: 1px; font-weight: 900;">
@@ -177,7 +177,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                                 <td style="padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333333;">
                                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                                         <span>${item.name} (×${item.quantity})</span>
-                                                        <span style="font-weight: bold;">$${item.price}</span>
                                                     </div>
                                                 </td>
                                             </tr>`
