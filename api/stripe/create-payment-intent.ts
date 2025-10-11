@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const stripe = new Stripe(stripeSecretKey, {
-            apiVersion: "2024-12-18.acacia",
+            apiVersion: "2025-09-30.clover",
         });
 
         console.log(
