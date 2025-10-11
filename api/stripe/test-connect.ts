@@ -102,25 +102,57 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             })),
         });
 
-        // Test Supabase if requested
+        // Test Supabase connection if query param is present
         if (req.query.testSupabase === 'true') {
             try {
+                console.log("🔍 Testing Supabase connection...");
+                
+                // Test simple query first
                 const { data: customers, error: queryError } = await supabaseAdmin
                     .from('customers')
                     .select('id')
                     .limit(1);
                 
-                return res.json({
+                if (queryError) {
+                    console.error("❌ Supabase query error:", queryError);
+                    return res.json({
+                        ...res.locals.responseData,
+                        supabase: {
+                            success: false,
+                            error: "Query failed",
+                            details: queryError
+                        }
+                    });
+                }
+
+                console.log("✅ Supabase query successful");
+                
+                // Store the stripe response for later
+                const stripeResponse = {
                     success: true,
+                    account: {
+                        id: account.id,
+                        name: account.business_profile?.name || "No business name",
+                        email: account.email,
+                        country: account.country,
+                    },
                     supabase: {
-                        success: !queryError,
-                        error: queryError?.message || null,
-                        details: queryError || "Connected successfully"
+                        success: true,
+                        message: "Connected successfully",
+                        customerCount: customers?.length || 0
                     }
-                });
+                };
+                
+                return res.json(stripeResponse);
+                
             } catch (supabaseError: any) {
+                console.error("❌ Supabase connection error:", supabaseError);
                 return res.json({
                     success: true,
+                    account: {
+                        id: account.id,
+                        name: account.business_profile?.name || "No business name"
+                    },
                     supabase: {
                         success: false,
                         error: supabaseError.message,
