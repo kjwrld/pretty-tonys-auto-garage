@@ -83,7 +83,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             name: expandedSession.customer_details?.name,
             phone: expandedSession.customer_details?.phone,
             address: expandedSession.customer_details?.address,
-            shippingAddress: expandedSession.shipping_details?.address,
+            shippingAddress: (expandedSession as any).shipping_details?.address,
             amount: expandedSession.amount_total! / 100,
             currency: expandedSession.currency?.toUpperCase(),
             paymentStatus: expandedSession.payment_status,

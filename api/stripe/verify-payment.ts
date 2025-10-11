@@ -24,7 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const stripe = new Stripe(stripeSecretKey, {
-            apiVersion: "2025-09-30.clover",
+            apiVersion: "2024-12-18.acacia",
         });
 
         console.log(`🔍 Verifying payment for session: ${session_id}`);
@@ -39,12 +39,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Get customer details if available
             let customerEmail = null;
             if (session.customer && typeof session.customer === 'string') {
-                const customer = await stripe.customers.retrieve(
-                    session.customer,
-                    { stripeAccount: connectAccountId }
-                );
-                if ('email' in customer) {
-                    customerEmail = customer.email;
+                try {
+                    const customer = await stripe.customers.retrieve(
+                        session.customer,
+                        { stripeAccount: connectAccountId }
+                    );
+                    if ('email' in customer) {
+                        customerEmail = customer.email;
+                    }
+                } catch (error) {
+                    console.log("Could not retrieve customer details");
                 }
             }
 
