@@ -131,9 +131,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 quantity: Number(quantity),
             };
 
-            console.log(
-                `Added line item for ${cartKey}: ${productMapping.name} $${productMapping.price} x${quantity}`
-            );
             lineItems.push(lineItem);
         }
 

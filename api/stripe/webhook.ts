@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 break;
 
             default:
-                console.log(`Unhandled event type: ${event.type}`);
+                // Unhandled event type
         }
 
         res.status(200).json({ received: true });
@@ -58,7 +58,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-    console.log("🛒 Processing completed checkout session:", session.id);
 
     try {
         // Get expanded session data from Connect account
@@ -97,7 +96,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         const firstName = nameParts[0] || "Customer";
         const lastName = nameParts.slice(1).join(" ") || undefined;
 
-        console.log(`💳 Order completed: ${firstName} - $${customerData.amount}`);
 
         // Get line items for order details
         const lineItems = await stripe.checkout.sessions.listLineItems(
@@ -205,10 +203,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             });
         }
 
-        console.log("✅ Successfully processed checkout session:", session.id);
-        if (raffleTickets.length > 0) {
-            console.log(`🎫 Generated ${raffleTickets.length} raffle tickets: ${raffleTickets.map(t => t.ticket_code).join(', ')}`);
-        }
     } catch (error) {
         console.error("❌ Error processing checkout session:", error);
         throw error;
@@ -216,12 +210,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-    console.log("💳 Payment succeeded:", paymentIntent.id);
     // Additional processing if needed for standalone payment intents
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
-    console.log("📄 Invoice payment succeeded:", invoice.id);
     // Handle recurring subscription payments if you add subscriptions later
 }
 
@@ -239,7 +231,6 @@ async function sendPurchaseNotificationToMailchimp(orderData: any) {
             throw new Error(`MailChimp API error: ${response.status}`);
         }
 
-        console.log("📧 Purchase notification sent to MailChimp");
     } catch (error) {
         console.error("❌ Failed to send purchase notification:", error);
         // Don't throw - webhook should still succeed even if email fails
@@ -265,7 +256,6 @@ async function sendRaffleTicketsEmail(data: {
             throw new Error(`Raffle tickets email API error: ${response.status}`);
         }
 
-        console.log("🎫 Raffle tickets email sent successfully");
     } catch (error) {
         console.error("❌ Failed to send raffle tickets email:", error);
         // Don't throw - webhook should still succeed even if email fails
