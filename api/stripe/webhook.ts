@@ -66,15 +66,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             session.id,
             {
                 expand: ["customer", "payment_intent.payment_method", "line_items"],
-                stripeAccount: connectAccountId,
-            }
+            },
+            { stripeAccount: connectAccountId }
         );
 
         // Extract customer data
         const customerData = {
             sessionId: expandedSession.id,
-            paymentIntentId: expandedSession.payment_intent?.id,
-            customerId: expandedSession.customer?.id || expandedSession.customer,
+            paymentIntentId: typeof expandedSession.payment_intent === 'string' 
+                ? expandedSession.payment_intent 
+                : expandedSession.payment_intent?.id,
+            customerId: typeof expandedSession.customer === 'string' 
+                ? expandedSession.customer 
+                : expandedSession.customer?.id,
             email: expandedSession.customer_details?.email,
             name: expandedSession.customer_details?.name,
             phone: expandedSession.customer_details?.phone,

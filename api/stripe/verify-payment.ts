@@ -24,31 +24,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const stripe = new Stripe(stripeSecretKey, {
-            apiVersion: "2024-12-18.acacia",
+            apiVersion: "2025-09-30.clover",
         });
 
         console.log(`🔍 Verifying payment for session: ${session_id}`);
 
         // Retrieve the session from Connect account
-        const session = await stripe.checkout.sessions.retrieve(session_id, {
-            stripeAccount: connectAccountId,
-        });
+        const session = await stripe.checkout.sessions.retrieve(
+            session_id,
+            { stripeAccount: connectAccountId }
+        );
 
         if (session.payment_status === "paid") {
             // Get customer details if available
-            const customer = session.customer
-                ? await stripe.customers.retrieve(session.customer, {
-                    stripeAccount: connectAccountId,
-                })
-                : null;
+            let customerEmail = null;
+            if (session.customer && typeof session.customer === 'string') {
+                const customer = await stripe.customers.retrieve(
+                    session.customer,
+                    { stripeAccount: connectAccountId }
+                );
+                if ('email' in customer) {
+                    customerEmail = customer.email;
+                }
+            }
 
             console.log(`✅ Payment verified: $${(session.amount_total! / 100).toFixed(2)}`);
 
             res.json({
                 success: true,
-                customer_email: customer?.email,
+                customer_email: customerEmail,
                 customer_name: session.customer_details?.name,
-                shipping_address: session.shipping_details?.address,
+                shipping_address: session.customer_details?.address,
                 amount_total: session.amount_total! / 100,
                 currency: session.currency,
                 payment_status: session.payment_status,
