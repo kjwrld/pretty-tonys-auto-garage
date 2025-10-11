@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
+import { supabaseAdmin } from "../../lib/supabase";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Set CORS headers
@@ -100,6 +101,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 })),
             })),
         });
+
+        // Test Supabase if requested
+        if (req.query.testSupabase === 'true') {
+            try {
+                const { data: customers, error: queryError } = await supabaseAdmin
+                    .from('customers')
+                    .select('id')
+                    .limit(1);
+                
+                return res.json({
+                    success: true,
+                    supabase: {
+                        success: !queryError,
+                        error: queryError?.message || null,
+                        details: queryError || "Connected successfully"
+                    }
+                });
+            } catch (supabaseError: any) {
+                return res.json({
+                    success: true,
+                    supabase: {
+                        success: false,
+                        error: supabaseError.message,
+                        details: supabaseError
+                    }
+                });
+            }
+        }
 
     } catch (error: any) {
         console.error("❌ Connect test failed:", error);
