@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Navbar } from "./components/Navbar";
 import { ProductCard, Product } from "./components/ProductCard";
 import { ProductPage } from "./components/ProductPage";
@@ -326,6 +328,8 @@ export default function App() {
             )}
 
             <Toaster />
+            <Analytics />
+            <SpeedInsights />
         </div>
     );
 }
