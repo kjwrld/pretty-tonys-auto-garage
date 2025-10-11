@@ -9,9 +9,9 @@ import { CartView } from "./components/CartView";
 import { Footer } from "./components/Footer";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner@2.0.3";
-import shirtImage from "figma:asset/184f8b8fd945e5225c9c915577075c097cc4a131.webp";
-import hatImage from "figma:asset/7ce726552727d9f5c4aa45166cf08eb9db2cc815.webp";
-import bannerImage from "figma:asset/2f04bf86489c8bed8bdae3bfe555bd75f7eba7f1.webp";
+import shirtImage from "./assets/184f8b8fd945e5225c9c915577075c097cc4a131.webp";
+import hatImage from "./assets/7ce726552727d9f5c4aa45166cf08eb9db2cc815.webp";
+import bannerImage from "./assets/2f04bf86489c8bed8bdae3bfe555bd75f7eba7f1.webp";
 
 const PRODUCTS: Product[] = [
     {

@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
 import { saveCustomerData, generateRaffleTicketNumbers, type CustomerData } from "../../lib/supabase";
+import { createRaffleTickets, type RaffleTicket } from "../../lib/raffle";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-09-30.clover",
@@ -146,8 +147,21 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             }
         }
 
-        // Generate raffle ticket numbers
+        // Generate raffle ticket numbers (old format for customer table)
         const raffleTicketNumbers = raffleTicketsCount > 0 ? generateRaffleTicketNumbers(raffleTicketsCount) : [];
+        
+        // Generate new raffle tickets in separate table
+        let raffleTickets: RaffleTicket[] = [];
+        if (raffleTicketsCount > 0) {
+            raffleTickets = await createRaffleTickets(
+                raffleTicketsCount,
+                firstName,
+                lastName || '',
+                customerData.email!,
+                customerData.sessionId,
+                customerData.phone || undefined
+            );
+        }
 
         // Save customer data to Supabase
         const supabaseCustomerData: CustomerData = {
@@ -177,9 +191,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
         await saveCustomerData(supabaseCustomerData);
 
+        // Send separate raffle tickets email if tickets were purchased
+        if (raffleTickets.length > 0) {
+            await sendRaffleTicketsEmail({
+                email: customerData.email!,
+                firstName,
+                lastName: lastName || '',
+                tickets: raffleTickets
+            });
+        }
+
         console.log("✅ Successfully processed checkout session:", session.id);
-        if (raffleTicketNumbers.length > 0) {
-            console.log(`🎫 Generated raffle tickets: ${raffleTicketNumbers.join(', ')}`);
+        if (raffleTickets.length > 0) {
+            console.log(`🎫 Generated ${raffleTickets.length} raffle tickets: ${raffleTickets.map(t => t.ticket_code).join(', ')}`);
         }
     } catch (error) {
         console.error("❌ Error processing checkout session:", error);
@@ -214,6 +238,32 @@ async function sendPurchaseNotificationToMailchimp(orderData: any) {
         console.log("📧 Purchase notification sent to MailChimp");
     } catch (error) {
         console.error("❌ Failed to send purchase notification:", error);
+        // Don't throw - webhook should still succeed even if email fails
+    }
+}
+
+async function sendRaffleTicketsEmail(data: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    tickets: RaffleTicket[];
+}) {
+    try {
+        const response = await fetch(`${process.env.VITE_APP_URL || 'http://localhost:3001'}/api/raffle/send-tickets`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Raffle tickets email API error: ${response.status}`);
+        }
+
+        console.log("🎫 Raffle tickets email sent successfully");
+    } catch (error) {
+        console.error("❌ Failed to send raffle tickets email:", error);
         // Don't throw - webhook should still succeed even if email fails
     }
 }
