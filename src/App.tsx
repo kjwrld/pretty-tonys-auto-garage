@@ -12,6 +12,8 @@ import { toast } from "sonner@2.0.3";
 import shirtImage from "./assets/184f8b8fd945e5225c9c915577075c097cc4a131.webp";
 import hatImage from "./assets/7ce726552727d9f5c4aa45166cf08eb9db2cc815.webp";
 import bannerImage from "./assets/2f04bf86489c8bed8bdae3bfe555bd75f7eba7f1.webp";
+import teeBackImage from "./assets/tee_back.webp";
+import raffleTicketImage from "./assets/raffle-ticket.webp";
 
 const PRODUCTS: Product[] = [
     {
@@ -45,10 +47,10 @@ const PRODUCTS: Product[] = [
             "Soft premium cotton t-shirt with bold Pretty Tony's Auto Garage graphics. Designed for comfort and style with reinforced stitching and fade-resistant print. The perfect garage wear for enthusiasts who appreciate quality craftsmanship and automotive culture.",
         price: 49.99,
         originalPrice: 55.55,
-        image: "https://images.unsplash.com/photo-1759261718155-3a1727927a20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGdyYXBoaWMlMjB0c2hpcnR8ZW58MXx8fHwxNzU5OTQ4NTQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+        image: teeBackImage,
         additionalImages: [
-            "https://images.unsplash.com/photo-1759261718155-3a1727927a20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGdyYXBoaWMlMjB0c2hpcnR8ZW58MXx8fHwxNzU5OTQ4NTQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-            "https://images.unsplash.com/photo-1759261718155-3a1727927a20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMGdyYXBoaWMlMjB0c2hpcnR8ZW58MXx8fHwxNzU5OTQ4NTQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+            teeBackImage,
+            teeBackImage,
         ],
         sizes: ["S", "M", "L", "XL", "XXL"],
     },
@@ -60,10 +62,10 @@ const PRODUCTS: Product[] = [
             "Enter for your chance to win exclusive prizes from Pretty Tony's Auto Garage. Choose from single tickets or value bundles for better odds. Proceeds support our garage community and upcoming automotive events. Winners announced monthly.",
         price: 10.0,
         originalPrice: 10.0,
-        image: "https://images.unsplash.com/photo-1632613752851-9170e34f2479?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYWZmbGUlMjB0aWNrZXRzJTIwcmVkfGVufDF8fHx8MTc2MDExMjA3NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+        image: raffleTicketImage,
         additionalImages: [
-            "https://images.unsplash.com/photo-1632613752851-9170e34f2479?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYWZmbGUlMjB0aWNrZXRzJTIwcmVkfGVufDF8fHx8MTc2MDExMjA3NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-            "https://images.unsplash.com/photo-1632613752851-9170e34f2479?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYWZmbGUlMjB0aWNrZXRzJTIwcmVkfGVufDF8fHx8MTc2MDExMjA3NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+            raffleTicketImage,
+            raffleTicketImage,
         ],
         variants: [
             {
