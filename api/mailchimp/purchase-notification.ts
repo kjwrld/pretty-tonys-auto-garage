@@ -2,11 +2,11 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    if (req.method === 'OPTIONS') {
+    if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
 
@@ -15,14 +15,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { 
-            email, 
-            firstName, 
-            lastName, 
-            amount, 
-            cartItems, 
+        const {
+            email,
+            firstName,
+            lastName,
+            amount,
+            cartItems,
             sessionId,
-            shippingAddress 
+            shippingAddress,
         } = req.body;
 
         if (!email || !firstName || !amount) {
@@ -44,7 +44,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Extract datacenter from API key
         const datacenter = apiKey.split("-")[1];
 
-        console.log('📧 Adding customer to Mailchimp after purchase:', { email, firstName, amount });
+        console.log("📧 Adding customer to Mailchimp after purchase:", {
+            email,
+            firstName,
+            amount,
+        });
 
         // Add/update customer in Mailchimp audience
         const mailchimpUrl = `https://${datacenter}.api.mailchimp.com/3.0/lists/${audienceId}/members`;
@@ -121,7 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Order Confirmation - Pretty Tony's Autoshop</title>
+            <title>Order Confirmation - Pretty Tony's Auto Garage</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f9f9f9;">
@@ -133,10 +137,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             <tr>
                                 <td align="center" style="padding: 30px 20px; background-color: #ffffff; border-bottom: 2px solid #000000;">
                                     <img src="https://pretty-tonys-o7ckq99ts-k-os-theory.vercel.app/assets/e87a4c46c166dd312d5bfa2d78a27dff2ae256ba.png" 
-                                         alt="Pretty Tony's Autoshop" 
+                                         alt="Pretty Tony's Auto Garage" 
                                          style="max-width: 120px; height: auto; display: block;">
                                     <h1 style="margin: 15px 0 0 0; font-size: 24px; color: #000000; text-transform: uppercase; letter-spacing: 1px; font-weight: 900;">
-                                        Pretty Tony's Autoshop
+                                        Pretty Tony's Auto Garage
                                     </h1>
                                 </td>
                             </tr>
@@ -164,8 +168,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                                 </h3>
                                             </td>
                                         </tr>
-                                        ${cartItems ? cartItems.map((item: any) => 
-                                            `<tr>
+                                        ${
+                                            cartItems
+                                                ? cartItems
+                                                      .map(
+                                                          (item: any) =>
+                                                              `<tr>
                                                 <td style="padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333333;">
                                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                                         <span>${item.name} (×${item.quantity})</span>
@@ -173,12 +181,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                                     </div>
                                                 </td>
                                             </tr>`
-                                        ).join('') : ''}
+                                                      )
+                                                      .join("")
+                                                : ""
+                                        }
                                         <tr>
                                             <td style="padding: 15px; background-color: #f8f8f8; font-size: 16px; color: #000000; font-weight: bold;">
                                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                                     <span>TOTAL:</span>
-                                                    <span>$${amount.toFixed(2)}</span>
+                                                    <span>$${amount.toFixed(
+                                                        2
+                                                    )}</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -190,16 +203,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             <tr>
                                 <td style="padding: 20px;">
                                     <p style="margin: 0 0 10px 0; font-size: 14px; color: #666666;">
-                                        <strong>Order ID:</strong> ${sessionId.slice(-8).toUpperCase()}
+                                        <strong>Order ID:</strong> ${sessionId
+                                            .slice(-8)
+                                            .toUpperCase()}
                                     </p>
                                     <p style="margin: 0 0 20px 0; font-size: 14px; color: #666666; line-height: 1.6;">
                                         We'll prepare your items for shipping and send you tracking information once your order ships.
                                     </p>
-                                    <div style="border-top: 1px solid #e0e0e0; padding-top: 20px;">
-                                        <p style="margin: 0; font-size: 12px; color: #999999; text-align: center;">
-                                            Questions? Contact us at orders@prettytony.shop
-                                        </p>
-                                    </div>
                                 </td>
                             </tr>
                             
@@ -229,10 +239,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 },
             },
             settings: {
-                subject_line: `Order Confirmation - Pretty Tony's Autoshop ($${amount})`,
+                subject_line: `Order Confirmation - Pretty Tony's Auto Garage ($${amount})`,
                 title: `Order Confirmation - ${firstName}`,
-                from_name: "Pretty Tony's Autoshop",
-                reply_to: "orders@prettytony.shop",
+                from_name: "Pretty Tony's Auto Garage",
+                reply_to: "Official10piecetone@gmail.com",
                 auto_footer: false,
                 inline_css: true,
             },
@@ -285,7 +295,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             success: true,
             message: "Customer added to audience and order confirmation sent!",
         });
-
     } catch (error: any) {
         console.error("❌ Mailchimp purchase notification error:", error);
         res.status(500).json({
