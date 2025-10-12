@@ -56,40 +56,40 @@ const PRODUCTS: Product[] = [
         ],
         sizes: ["S", "M", "L", "XL", "XXL"],
     },
-    {
-        id: "4",
-        name: "Raffle Tickets",
-        description: "Win exclusive prizes • Multiple entry options",
-        longDescription:
-            "Enter for your chance to win exclusive prizes from Pretty Tony's Auto Garage. Choose from single tickets or value bundles for better odds. Proceeds support our garage community and upcoming automotive events. Winners announced monthly.",
-        price: 10.0,
-        originalPrice: 10.0,
-        image: raffleTicketImage,
-        additionalImages: [
-            raffleTicketImage,
-            raffleTicketImage,
-        ],
-        variants: [
-            {
-                id: "1-ticket",
-                name: "1 Ticket",
-                price: 10.0,
-                originalPrice: 10.0,
-            },
-            {
-                id: "3-tickets",
-                name: "3 Tickets",
-                price: 25.0,
-                originalPrice: 30.0,
-            },
-            {
-                id: "10-tickets",
-                name: "10 Tickets",
-                price: 50.0,
-                originalPrice: 100.0,
-            },
-        ],
-    },
+    // {
+    //     id: "4",
+    //     name: "Raffle Tickets",
+    //     description: "Win exclusive prizes • Multiple entry options",
+    //     longDescription:
+    //         "Enter for your chance to win exclusive prizes from Pretty Tony's Auto Garage. Choose from single tickets or value bundles for better odds. Proceeds support our garage community and upcoming automotive events. Winners announced monthly.",
+    //     price: 10.0,
+    //     originalPrice: 10.0,
+    //     image: raffleTicketImage,
+    //     additionalImages: [
+    //         raffleTicketImage,
+    //         raffleTicketImage,
+    //     ],
+    //     variants: [
+    //         {
+    //             id: "1-ticket",
+    //             name: "1 Ticket",
+    //             price: 10.0,
+    //             originalPrice: 10.0,
+    //         },
+    //         {
+    //             id: "3-tickets",
+    //             name: "3 Tickets",
+    //             price: 25.0,
+    //             originalPrice: 30.0,
+    //         },
+    //         {
+    //             id: "10-tickets",
+    //             name: "10 Tickets",
+    //             price: 50.0,
+    //             originalPrice: 100.0,
+    //         },
+    //     ],
+    // },
 ];
 
 export default function App() {
