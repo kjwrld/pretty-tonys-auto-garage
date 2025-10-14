@@ -6,9 +6,15 @@ interface WelcomeModalProps {
 }
 
 export function WelcomeModal({ onClose }: WelcomeModalProps) {
+    // Your blob video URLs
+    const portraitVideoUrl =
+        "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/10percenttone.mp4";
+    const wideVideoUrl =
+        "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/10percenttone_wide.mp4";
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-2xl max-h-[85vh] md:max-h-none overflow-y-auto bg-white border-4 border-black modal-expand">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden bg-white border-4 border-black modal-expand">
                 {/* Corner Brackets */}
                 <div className="absolute -top-2 -left-2 w-8 h-8 border-t-4 border-l-4 border-red-500" />
                 <div className="absolute -top-2 -right-2 w-8 h-8 border-t-4 border-r-4 border-red-500" />
@@ -26,13 +32,44 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
 
                 {/* Content */}
                 <div className="p-4 md:p-8">
-                    {/* Video Placeholder - Portrait 9:16 on mobile, Landscape 16:9 on desktop */}
-                    <div className="relative aspect-[9/16] md:aspect-[16/9] max-w-[200px] max-h-[356px] md:max-w-none md:max-h-none mx-auto mb-4 md:mb-6 overflow-hidden border-2 border-black bg-black">
-                        <ImageWithFallback
-                            src="https://images.unsplash.com/photo-1549047608-55b2fd4b8427?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvJTIwZ2FyYWdlJTIwc2hvcCUyMGludGVyaW9yfGVufDF8fHx8MTc1OTk1ODQxNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                            alt="Pretty Tony's Auto Garage"
-                            className="w-full h-full object-cover"
-                        />
+                    {/* Video - Portrait 9:16 on mobile, Landscape 16:9 on desktop */}
+                    <div className="relative aspect-[9/16] md:aspect-[16/9] max-w-[200px] max-h-[356px] md:max-w-none md:max-h-[360px] mx-auto mb-4 md:mb-6 overflow-hidden border-2 border-black bg-black">
+                        {/* Mobile Portrait Video */}
+                        <video
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="metadata"
+                            className="w-full h-full object-cover md:hidden"
+                        >
+                            <source src={portraitVideoUrl} type="video/mp4" />
+                            {/* Fallback to image if video fails */}
+                            <ImageWithFallback
+                                src="https://images.unsplash.com/photo-1549047608-55b2fd4b8427?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvJTIwZ2FyYWdlJTIwc2hvcCUyMGludGVyaW9yfGVufDF8fHx8MTc1OTk1ODQxNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                                alt="Pretty Tony's Auto Garage"
+                                className="w-full h-full object-cover"
+                            />
+                        </video>
+
+                        {/* Desktop Wide Video */}
+                        <video
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="metadata"
+                            className="w-full h-full object-cover hidden md:block"
+                        >
+                            <source src={wideVideoUrl} type="video/mp4" />
+                            {/* Fallback to image if video fails */}
+                            <ImageWithFallback
+                                src="https://images.unsplash.com/photo-1549047608-55b2fd4b8427?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvJTIwZ2FyYWdlJTIwc2hvcCUyMGludGVyaW9yfGVufDF8fHx8MTc1OTk1ODQxNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                                alt="Pretty Tony's Auto Garage"
+                                className="w-full h-full object-cover"
+                            />
+                        </video>
+
                         {/* Technical Overlay */}
                         <div className="absolute inset-0">
                             {/* Crosshair */}
@@ -44,18 +81,13 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                             <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-white/60" />
                             <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-white/60" />
                             <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-white/60" />
-
-                            {/* Video Placeholder Label */}
-                            <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/80 border border-red-500/50 text-[8px] text-white uppercase tracking-wider">
-                                [Video Placeholder]
-                            </div>
                         </div>
                     </div>
 
                     {/* Special Offer Section */}
                     <div className="space-y-3 md:space-y-6">
                         <div
-                            className="border-2 border-red-500 bg-white p-3 md:p-6 relative modal-offer-reveal"
+                            className="bg-white p-3 md:p-6 relative modal-offer-reveal"
                             style={{ animationDelay: "0.6s" }}
                         >
                             {/* Small Corner Brackets */}
@@ -92,12 +124,6 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                                     </span>
                                 </div>
                             </div>
-
-                            <div className="h-px bg-black/10 my-2 md:my-4" />
-
-                            <p className="text-center text-[9px] md:text-[10px] text-black/50 uppercase tracking-wider">
-                                Discount automatically applied to all items
-                            </p>
                         </div>
 
                         {/* Enhanced Enter Button */}
@@ -119,20 +145,15 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
 
                                 {/* Button content */}
                                 <div className="relative flex items-center justify-center gap-3 md:gap-4">
-                                    <div className="h-px w-6 md:w-8 bg-white/30 group-hover:bg-white/60 transition-all" />
                                     <span
                                         className="uppercase tracking-[0.2em] md:tracking-[0.3em] text-base md:text-lg"
                                         style={{ fontWeight: 900 }}
                                     >
                                         Enter
                                     </span>
-                                    <div className="h-px w-6 md:w-8 bg-white/30 group-hover:bg-white/60 transition-all" />
                                 </div>
 
                                 {/* Technical markers */}
-                                <div className="absolute top-2 left-2 text-[8px] text-white/40 uppercase tracking-wider group-hover:text-white/80 transition-all">
-                                    Execute
-                                </div>
                                 <div className="absolute top-2 right-2 text-[8px] text-white/40 uppercase tracking-wider group-hover:text-white/80 transition-all">
                                     &gt;&gt;
                                 </div>

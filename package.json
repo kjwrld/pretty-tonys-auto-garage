@@ -34,6 +34,7 @@
             "@stripe/stripe-js": "^8.0.0",
             "@supabase/supabase-js": "^2.75.0",
             "@vercel/analytics": "^1.5.0",
+            "@vercel/blob": "^2.0.0",
             "@vercel/node": "^5.3.26",
             "@vercel/speed-insights": "^1.2.0",
             "class-variance-authority": "^0.7.1",
