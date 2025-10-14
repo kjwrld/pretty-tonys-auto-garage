@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useMouseTracking } from "../hooks/useMouseTracking";
 
 interface WelcomeModalProps {
     onClose: () => void;
@@ -14,21 +15,25 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
         "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/10percenttone_wide.mp4";
 
     const [isDesktop, setIsDesktop] = useState(false);
+    const { mousePosition, elementRef: ticketRef } = useMouseTracking();
 
     useEffect(() => {
         const checkScreenSize = () => {
             setIsDesktop(window.innerWidth >= 768);
         };
-        
+
         checkScreenSize();
-        window.addEventListener('resize', checkScreenSize);
-        
-        return () => window.removeEventListener('resize', checkScreenSize);
+        window.addEventListener("resize", checkScreenSize);
+
+        return () => window.removeEventListener("resize", checkScreenSize);
     }, []);
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden bg-white border-4 border-black modal-expand">
+            <div
+                className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden border-4 border-black modal-expand"
+                style={{ backgroundColor: "#0244fd" }}
+            >
                 {/* Corner Brackets */}
                 <div className="absolute -top-2 -left-2 w-8 h-8 border-t-4 border-l-4 border-red-500" />
                 <div className="absolute -top-2 -right-2 w-8 h-8 border-t-4 border-r-4 border-red-500" />
@@ -47,14 +52,14 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                 {/* Content */}
                 <div className="p-4 md:p-8">
                     {/* Video - Portrait 9:16 on mobile, custom ratio on desktop */}
-                    <div 
-                        className={`relative mx-auto mb-4 md:mb-6 overflow-hidden border-2 border-black bg-black ${
-                            isDesktop 
-                                ? 'max-w-none' 
-                                : 'aspect-[9/16] max-w-[200px] max-h-[356px]'
+                    <div
+                        className={`relative mx-auto mb-4 md:mb-6 overflow-hidden ${
+                            isDesktop
+                                ? "max-w-none"
+                                : "aspect-[9/16] max-w-[200px] max-h-[356px]"
                         }`}
                         style={{
-                            aspectRatio: isDesktop ? '1620/1080' : undefined
+                            aspectRatio: isDesktop ? "1620/1080" : undefined,
                         }}
                     >
                         {/* Mobile Portrait Video */}
@@ -110,14 +115,31 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                     {/* Special Offer Section */}
                     <div className="space-y-3 md:space-y-6">
                         <div
-                            className="bg-white p-3 md:p-6 relative modal-offer-reveal"
-                            style={{ animationDelay: "0.6s" }}
+                            ref={ticketRef}
+                            className="p-3 md:p-6 relative overflow-hidden"
+                            style={{
+                                backgroundColor: "#e0e0e0",
+                                backgroundImage: "none",
+                            }}
                         >
                             {/* Small Corner Brackets */}
                             <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-red-500 bracket-pulse" />
                             <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-red-500 bracket-pulse" />
                             <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-red-500 bracket-pulse" />
                             <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-red-500 bracket-pulse" />
+
+                            {/* Shine Effect */}
+                            <div
+                                className="absolute inset-0 pointer-events-none transition-all duration-100 ease-out"
+                                style={{
+                                    background: `radial-gradient(circle at ${mousePosition.xPercent}% ${mousePosition.yPercent}%, 
+                                        rgba(255, 255, 255, 0.7) 0%, 
+                                        rgba(255, 255, 255, 0.3) 20%, 
+                                        transparent 50%
+                                    )`,
+                                    mixBlendMode: "screen",
+                                }}
+                            />
 
                             <div className="flex items-center justify-center gap-2 md:gap-3 mb-2 md:mb-4">
                                 <div className="h-px w-8 md:w-12 bg-red-500/30" />
