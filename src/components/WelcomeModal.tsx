@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface WelcomeModalProps {
@@ -11,6 +12,19 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
         "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/10percenttone.mp4";
     const wideVideoUrl =
         "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/10percenttone_wide.mp4";
+
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsDesktop(window.innerWidth >= 768);
+        };
+        
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
+        
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, []);
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -32,8 +46,17 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
 
                 {/* Content */}
                 <div className="p-4 md:p-8">
-                    {/* Video - Portrait 9:16 on mobile, Landscape 16:9 on desktop */}
-                    <div className="relative aspect-[9/16] md:aspect-[16/9] max-w-[200px] max-h-[356px] md:max-w-none md:max-h-[360px] mx-auto mb-4 md:mb-6 overflow-hidden border-2 border-black bg-black">
+                    {/* Video - Portrait 9:16 on mobile, custom ratio on desktop */}
+                    <div 
+                        className={`relative mx-auto mb-4 md:mb-6 overflow-hidden border-2 border-black bg-black ${
+                            isDesktop 
+                                ? 'max-w-none' 
+                                : 'aspect-[9/16] max-w-[200px] max-h-[356px]'
+                        }`}
+                        style={{
+                            aspectRatio: isDesktop ? '1620/1080' : undefined
+                        }}
+                    >
                         {/* Mobile Portrait Video */}
                         <video
                             autoPlay
