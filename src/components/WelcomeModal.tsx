@@ -83,6 +83,20 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                     font-family: 'Lato', sans-serif;
                     font-weight: 900;
                 }
+                .watermark-10 {
+                    font-family: Inter, sans-serif;
+                    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.1);
+                    text-shadow: rgba(0, 0, 0, 0.8) 0px 0px 20px;
+                    font-size: 4rem;
+                    font-weight: 900;
+                    opacity: 0.04;
+                    transition: opacity 0.3s ease;
+                }
+                @media (min-width: 768px) {
+                    .watermark-10 {
+                        font-size: 8rem;
+                    }
+                }
             `}</style>
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                 <div
@@ -163,11 +177,15 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                                 <div className="absolute top-1/2 left-0 w-full h-px bg-red-500/30 grid-pulse pointer-events-none" />
                                 <div className="absolute top-0 left-1/2 w-px h-full bg-red-500/30 grid-pulse pointer-events-none" />
 
-                                {/* Corner Markers */}
-                                <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-white/60 pointer-events-none" />
-                                <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-white/60 pointer-events-none" />
-                                <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-white/60 pointer-events-none" />
-                                <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-white/60 pointer-events-none" />
+                                {/* Corner Markers - Mobile Only */}
+                                {!isDesktop && (
+                                    <>
+                                        <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-white/60 pointer-events-none" />
+                                        <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-white/60 pointer-events-none" />
+                                        <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-white/60 pointer-events-none" />
+                                        <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-white/60 pointer-events-none" />
+                                    </>
+                                )}
 
                                 {/* Centered Mute/Unmute Button - only show when muted */}
                                 {isMuted && (
@@ -241,12 +259,29 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                                         backgroundPosition:
                                             "center center, center center",
                                         backgroundSize: "cover, cover",
-                                        mixBlendMode: "color-dodge",
-                                        opacity: 0.3,
+                                        mixBlendMode: "screen",
+                                        opacity: 0.15,
                                         filter: "brightness(1) contrast(1) saturate(0.8)",
                                         willChange: "background-image",
                                     }}
                                 />
+
+                                {/* Watermark 10s Layer */}
+                                <div
+                                    className="absolute inset-0 pointer-events-none flex items-center justify-between px-4"
+                                    style={{
+                                        mixBlendMode: "screen",
+                                    }}
+                                >
+                                    {/* Left 10 */}
+                                    <div className="watermark-10 text-white select-none">
+                                        10
+                                    </div>
+                                    {/* Right 10 */}
+                                    <div className="watermark-10 text-white select-none">
+                                        10
+                                    </div>
+                                </div>
 
                                 {/* Glare Layer */}
                                 <div
