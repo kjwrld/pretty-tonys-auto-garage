@@ -107,11 +107,22 @@ export function ProductPage({
                                 <div className="absolute top-0 left-1/2 w-px h-full bg-red-500/20" />
                             </div>
 
-                            <ImageWithFallback
-                                src={allImages[selectedImage]}
-                                alt={product.name}
-                                className="w-full h-full object-cover"
-                            />
+                            {allImages[selectedImage].endsWith('.mp4') ? (
+                                <video
+                                    src={allImages[selectedImage]}
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <ImageWithFallback
+                                    src={allImages[selectedImage]}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
 
                             {/* Image Info Overlay */}
                             <div className="absolute bottom-0 left-0 right-0 bg-white/80 border-t border-black/20 p-2 z-10">
@@ -144,11 +155,22 @@ export function ProductPage({
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-red-500 z-10" />
                                         </>
                                     )}
-                                    <ImageWithFallback
-                                        src={image}
-                                        alt={`${product.name} ${index + 1}`}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    {image.endsWith('.mp4') ? (
+                                        <video
+                                            src={image}
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <ImageWithFallback
+                                            src={image}
+                                            alt={`${product.name} ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    )}
                                     <div className="absolute bottom-0 left-0 right-0 bg-white/70 px-1 py-0.5 text-[8px] text-black/50 text-center">
                                         IMG_{index + 1}
                                     </div>

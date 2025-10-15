@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Navbar } from "./components/Navbar";
 import { ProductCard, Product } from "./components/ProductCard";
 import { ProductPage } from "./components/ProductPage";
@@ -11,11 +11,7 @@ import { CartView } from "./components/CartView";
 import { Footer } from "./components/Footer";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner@2.0.3";
-import shirtImage from "./assets/184f8b8fd945e5225c9c915577075c097cc4a131.webp";
-import hatImage from "./assets/7ce726552727d9f5c4aa45166cf08eb9db2cc815.webp";
 import bannerImage from "./assets/2f04bf86489c8bed8bdae3bfe555bd75f7eba7f1.webp";
-import teeBackImage from "./assets/tee_back.webp";
-import raffleTicketImage from "./assets/raffle-ticket.webp";
 
 const PRODUCTS: Product[] = [
     {
@@ -26,8 +22,11 @@ const PRODUCTS: Product[] = [
             "Premium quality polo shirt featuring the iconic Pretty Tony's Auto Garage embroidered logo. Crafted from high-grade cotton blend for superior comfort and durability. Perfect for garage visits, car meets, or everyday wear. Limited edition design exclusive to our garage.",
         price: 79.99,
         originalPrice: 88.88,
-        image: shirtImage,
-        additionalImages: [shirtImage, shirtImage],
+        image: "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo.mp4",
+        additionalImages: [
+            "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo.webp",
+            "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo_2.mp4",
+        ],
         sizes: ["S", "M", "L", "XL", "XXL"],
     },
     {
@@ -38,8 +37,10 @@ const PRODUCTS: Product[] = [
             "Classic snapback hat in vibrant red with custom blue car embroidery. Adjustable fit with premium stitching and structured crown. Perfect for keeping the sun out while wrenching or cruising. Rep Pretty Tony's Auto Garage in style wherever you go.",
         price: 39.99,
         originalPrice: 44.44,
-        image: hatImage,
-        additionalImages: [hatImage, hatImage],
+        image: "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_hat.mp4",
+        additionalImages: [
+            "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_hat.webp",
+        ],
     },
     {
         id: "3",
@@ -49,10 +50,9 @@ const PRODUCTS: Product[] = [
             "Soft premium cotton t-shirt with bold Pretty Tony's Auto Garage graphics. Designed for comfort and style with reinforced stitching and fade-resistant print. The perfect garage wear for enthusiasts who appreciate quality craftsmanship and automotive culture.",
         price: 49.99,
         originalPrice: 55.55,
-        image: teeBackImage,
+        image: "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_graphic_tee.mp4",
         additionalImages: [
-            teeBackImage,
-            teeBackImage,
+            "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_graphic_tee_2.png",
         ],
         sizes: ["S", "M", "L", "XL", "XXL"],
     },

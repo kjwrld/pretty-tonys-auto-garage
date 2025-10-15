@@ -260,7 +260,7 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                                             "center center, center center",
                                         backgroundSize: "cover, cover",
                                         mixBlendMode: "screen",
-                                        opacity: 0.15,
+                                        opacity: 0.1,
                                         filter: "brightness(1) contrast(1) saturate(0.8)",
                                         willChange: "background-image",
                                     }}

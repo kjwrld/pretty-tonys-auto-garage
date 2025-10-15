@@ -52,13 +52,25 @@ export function ProductCard({ product, onAddToCart, onClick }: ProductCardProps)
           <div className="absolute top-0 left-1/2 w-px h-full bg-red-500/30" />
         </div>
 
-        {/* Product Image */}
-        <ImageWithFallback
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
-          onClick={() => onClick(product.id)}
-        />
+        {/* Product Image/Video */}
+        {product.image.endsWith('.mp4') ? (
+          <video
+            src={product.image}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+            onClick={() => onClick(product.id)}
+          />
+        ) : (
+          <ImageWithFallback
+            src={product.image}
+            alt={product.name}
+            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+            onClick={() => onClick(product.id)}
+          />
+        )}
 
         {/* Discount Badge */}
         {discount > 0 && (
