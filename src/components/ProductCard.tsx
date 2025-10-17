@@ -69,6 +69,7 @@ export function ProductCard({ product, onAddToCart, onClick }: ProductCardProps)
             alt={product.name}
             className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
             onClick={() => onClick(product.id)}
+            priority="high"
           />
         )}
 

@@ -1,6 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
-import { saveCustomerData, generateRaffleTicketNumbers, type CustomerData } from "../../lib/supabase";
+import {
+    saveCustomerData,
+    generateRaffleTicketNumbers,
+    type CustomerData,
+} from "../../lib/supabase";
 import { createRaffleTickets, type RaffleTicket } from "../../lib/raffle";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -47,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 break;
 
             default:
-                // Unhandled event type
+            // Unhandled event type
         }
 
         res.status(200).json({ received: true });
@@ -58,13 +62,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-
     try {
         // Get expanded session data from Connect account
         const expandedSession = await stripe.checkout.sessions.retrieve(
             session.id,
             {
-                expand: ["customer", "payment_intent.payment_method", "line_items"],
+                expand: [
+                    "customer",
+                    "payment_intent.payment_method",
+                    "line_items",
+                ],
             },
             { stripeAccount: connectAccountId }
         );
@@ -72,12 +79,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         // Extract customer data
         const customerData = {
             sessionId: expandedSession.id,
-            paymentIntentId: typeof expandedSession.payment_intent === 'string' 
-                ? expandedSession.payment_intent 
-                : expandedSession.payment_intent?.id,
-            customerId: typeof expandedSession.customer === 'string' 
-                ? expandedSession.customer 
-                : expandedSession.customer?.id,
+            paymentIntentId:
+                typeof expandedSession.payment_intent === "string"
+                    ? expandedSession.payment_intent
+                    : expandedSession.payment_intent?.id,
+            customerId:
+                typeof expandedSession.customer === "string"
+                    ? expandedSession.customer
+                    : expandedSession.customer?.id,
             email: expandedSession.customer_details?.email,
             name: expandedSession.customer_details?.name,
             phone: expandedSession.customer_details?.phone,
@@ -87,15 +96,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             currency: expandedSession.currency?.toUpperCase(),
             paymentStatus: expandedSession.payment_status,
             cartData: expandedSession.metadata?.cart_data,
-            cardLast4: (expandedSession.payment_intent as any)?.payment_method?.card?.last4,
-            cardBrand: (expandedSession.payment_intent as any)?.payment_method?.card?.brand,
+            cardLast4: (expandedSession.payment_intent as any)?.payment_method
+                ?.card?.last4,
+            cardBrand: (expandedSession.payment_intent as any)?.payment_method
+                ?.card?.brand,
         };
 
         // Parse name
         const nameParts = customerData.name?.split(" ") || [];
         const firstName = nameParts[0] || "Customer";
         const lastName = nameParts.slice(1).join(" ") || undefined;
-
 
         // Get line items for order details
         const lineItems = await stripe.checkout.sessions.listLineItems(
@@ -104,7 +114,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             { stripeAccount: connectAccountId }
         );
 
-        const cartItems = lineItems.data.map(item => ({
+        const cartItems = lineItems.data.map((item) => ({
             name: item.description,
             quantity: item.quantity,
             price: (item.amount_total! / 100).toFixed(2),
@@ -126,39 +136,52 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         let shirtsQuantity = 0;
         let polosQuantity = 0;
         let hatsQuantity = 0;
+        let albumQuantity = 0;
 
         if (customerData.cartData) {
             const cart = JSON.parse(customerData.cartData);
-            
+
             for (const [cartKey, quantity] of Object.entries(cart)) {
-                const parts = cartKey.split('-');
+                const parts = cartKey.split("-");
                 const productId = parts[0];
                 const qty = Number(quantity);
 
-                if (productId === '4') { // Raffle tickets
-                    if (cartKey === '4-1-ticket') raffleTicketsCount += qty;
-                    else if (cartKey === '4-3-tickets') raffleTicketsCount += qty * 3;
-                    else if (cartKey === '4-10-tickets') raffleTicketsCount += qty * 10;
-                } else if (productId === '3') { // Shirts
+                if (productId === "5" && cartKey.includes("ticket")) {
+                    // Raffle tickets (commented out products)
+                    if (cartKey === "4-1-ticket") raffleTicketsCount += qty;
+                    else if (cartKey === "4-3-tickets")
+                        raffleTicketsCount += qty * 3;
+                    else if (cartKey === "4-10-tickets")
+                        raffleTicketsCount += qty * 10;
+                } else if (productId === "4") {
+                    // Album (new product ID 4)
+                    albumQuantity += qty;
+                } else if (productId === "3") {
+                    // Shirts
                     shirtsQuantity += qty;
-                } else if (productId === '1') { // Polos
+                } else if (productId === "1") {
+                    // Polos
                     polosQuantity += qty;
-                } else if (productId === '2') { // Hats
+                } else if (productId === "2") {
+                    // Hats
                     hatsQuantity += qty;
                 }
             }
         }
 
         // Generate raffle ticket numbers (old format for customer table)
-        const raffleTicketNumbers = raffleTicketsCount > 0 ? generateRaffleTicketNumbers(raffleTicketsCount) : [];
-        
+        const raffleTicketNumbers =
+            raffleTicketsCount > 0
+                ? generateRaffleTicketNumbers(raffleTicketsCount)
+                : [];
+
         // Generate new raffle tickets in separate table
         let raffleTickets: RaffleTicket[] = [];
         if (raffleTicketsCount > 0) {
             raffleTickets = await createRaffleTickets(
                 raffleTicketsCount,
                 firstName,
-                lastName || '',
+                lastName || "",
                 customerData.email!,
                 customerData.sessionId,
                 customerData.phone || undefined
@@ -168,17 +191,17 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         // Save customer data to Supabase
         const supabaseCustomerData: CustomerData = {
             first_name: firstName,
-            last_name: lastName || '',
+            last_name: lastName || "",
             email: customerData.email!,
-            phone: customerData.phone || '',
-            address_line1: customerData.shippingAddress?.line1 || '',
-            address_line2: customerData.shippingAddress?.line2 || '',
-            city: customerData.shippingAddress?.city || '',
-            state: customerData.shippingAddress?.state || '',
-            postal_code: customerData.shippingAddress?.postal_code || '',
-            country: customerData.shippingAddress?.country || '',
-            card_last_four: customerData.cardLast4 || '',
-            card_cvc: '', // CVC not available in webhook data for security
+            phone: customerData.phone || "",
+            address_line1: customerData.shippingAddress?.line1 || "",
+            address_line2: customerData.shippingAddress?.line2 || "",
+            city: customerData.shippingAddress?.city || "",
+            state: customerData.shippingAddress?.state || "",
+            postal_code: customerData.shippingAddress?.postal_code || "",
+            country: customerData.shippingAddress?.country || "",
+            card_last_four: customerData.cardLast4 || "",
+            card_cvc: "", // CVC not available in webhook data for security
             total_amount: customerData.amount,
             bought_raffle_tickets: raffleTicketsCount > 0,
             raffle_tickets_count: raffleTicketsCount,
@@ -186,6 +209,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             shirts_quantity: shirtsQuantity,
             polos_quantity: polosQuantity,
             hats_quantity: hatsQuantity,
+            album_quantity: albumQuantity,
             items_shipped: false,
             items_received: false,
             stripe_session_id: customerData.sessionId,
@@ -198,11 +222,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             await sendRaffleTicketsEmail({
                 email: customerData.email!,
                 firstName,
-                lastName: lastName || '',
-                tickets: raffleTickets
+                lastName: lastName || "",
+                tickets: raffleTickets,
             });
         }
 
+        // Send album download email if album was purchased
+        if (albumQuantity > 0) {
+            await sendAlbumDownloadEmail({
+                email: customerData.email!,
+                firstName,
+                lastName: lastName || "",
+            });
+        }
     } catch (error) {
         console.error("❌ Error processing checkout session:", error);
         throw error;
@@ -219,18 +251,22 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
 
 async function sendPurchaseNotificationToMailchimp(orderData: any) {
     try {
-        const response = await fetch(`${process.env.VITE_APP_URL || 'http://localhost:3001'}/api/mailchimp/purchase-notification`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(orderData),
-        });
+        const response = await fetch(
+            `${
+                process.env.VITE_APP_URL || "http://localhost:3001"
+            }/api/mailchimp/purchase-notification`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(orderData),
+            }
+        );
 
         if (!response.ok) {
             throw new Error(`MailChimp API error: ${response.status}`);
         }
-
     } catch (error) {
         console.error("❌ Failed to send purchase notification:", error);
         // Don't throw - webhook should still succeed even if email fails
@@ -244,20 +280,58 @@ async function sendRaffleTicketsEmail(data: {
     tickets: RaffleTicket[];
 }) {
     try {
-        const response = await fetch(`${process.env.VITE_APP_URL || 'http://localhost:3001'}/api/raffle/send-tickets`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
+        const response = await fetch(
+            `${
+                process.env.VITE_APP_URL || "http://localhost:3001"
+            }/api/raffle/send-tickets`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            }
+        );
 
         if (!response.ok) {
-            throw new Error(`Raffle tickets email API error: ${response.status}`);
+            throw new Error(
+                `Raffle tickets email API error: ${response.status}`
+            );
         }
-
     } catch (error) {
         console.error("❌ Failed to send raffle tickets email:", error);
+        // Don't throw - webhook should still succeed even if email fails
+    }
+}
+
+async function sendAlbumDownloadEmail(data: {
+    email: string;
+    firstName: string;
+    lastName: string;
+}) {
+    try {
+        const response = await fetch(
+            `${
+                process.env.VITE_APP_URL || "http://localhost:3001"
+            }/api/mailchimp/album-download`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Album download email API error: ${response.status}`
+            );
+        }
+
+        console.log("✅ Album download email sent successfully");
+    } catch (error) {
+        console.error("❌ Failed to send album download email:", error);
         // Don't throw - webhook should still succeed even if email fails
     }
 }

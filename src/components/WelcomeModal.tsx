@@ -31,33 +31,33 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
         return () => window.removeEventListener("resize", checkScreenSize);
     }, []);
 
-    useEffect(() => {
-        const calculateTimeLeft = () => {
-            const saleEndDate = new Date("2025-11-01T00:00:00").getTime();
-            const now = new Date().getTime();
-            const difference = saleEndDate - now;
+    // useEffect(() => {
+    //     const calculateTimeLeft = () => {
+    //         const saleEndDate = new Date("2025-11-01T00:00:00").getTime();
+    //         const now = new Date().getTime();
+    //         const difference = saleEndDate - now;
 
-            if (difference > 0) {
-                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-                const hours = Math.floor(
-                    (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-                );
-                const minutes = Math.floor(
-                    (difference % (1000 * 60 * 60)) / (1000 * 60)
-                );
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    //         if (difference > 0) {
+    //             const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    //             const hours = Math.floor(
+    //                 (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    //             );
+    //             const minutes = Math.floor(
+    //                 (difference % (1000 * 60 * 60)) / (1000 * 60)
+    //             );
+    //             const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-                setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-            } else {
-                setTimeLeft("Sale Ended");
-            }
-        };
+    //             setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+    //         } else {
+    //             setTimeLeft("Sale Ended");
+    //         }
+    //     };
 
-        calculateTimeLeft();
-        const timer = setInterval(calculateTimeLeft, 1000);
+    //     calculateTimeLeft();
+    //     const timer = setInterval(calculateTimeLeft, 1000);
 
-        return () => clearInterval(timer);
-    }, []);
+    //     return () => clearInterval(timer);
+    // }, []);
 
     const toggleMute = () => {
         setIsMuted(false);
@@ -201,14 +201,14 @@ export function WelcomeModal({ onClose }: WelcomeModalProps) {
                         </div>
 
                         {/* Sale End Timer */}
-                        <div className="text-center mb-3 md:mb-4">
+                        {/* <div className="text-center mb-3 md:mb-4">
                             <div className="text-sm md:text-base text-white/60 uppercase tracking-widest lato-black mb-1">
                                 SALE ENDS SOON!
                             </div>
                             <div className="text-xl md:text-2xl text-white lato-black uppercase tracking-wide">
                                 {timeLeft}
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Special Offer Section */}
                         <div className="space-y-3 md:space-y-6">

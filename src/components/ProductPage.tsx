@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Minus, Plus } from "lucide-react";
 import { Product, ProductVariant } from "./ProductCard";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Button } from "./ui/button";
+import { useNavigation } from "../contexts/NavigationContext";
 
 interface ProductPageProps {
     product: Product;
@@ -19,7 +20,10 @@ export function ProductPage({
     onAddToCart,
     onBack,
 }: ProductPageProps) {
-    const [selectedImage, setSelectedImage] = useState(0);
+    const { getSelectedImageIndex, setSelectedImageIndex } = useNavigation();
+    const [selectedImage, setSelectedImage] = useState(() => 
+        getSelectedImageIndex(product.id)
+    );
     const [selectedVariant, setSelectedVariant] =
         useState<ProductVariant | null>(
             product.variants ? product.variants[0] : null
@@ -29,6 +33,11 @@ export function ProductPage({
     );
     const [quantity, setQuantity] = useState(1);
     const allImages = [product.image, ...product.additionalImages];
+
+    // Save selected image index when it changes
+    useEffect(() => {
+        setSelectedImageIndex(product.id, selectedImage);
+    }, [selectedImage, product.id, setSelectedImageIndex]);
 
     const currentPrice = selectedVariant
         ? selectedVariant.price
@@ -107,7 +116,7 @@ export function ProductPage({
                                 <div className="absolute top-0 left-1/2 w-px h-full bg-red-500/20" />
                             </div>
 
-                            {allImages[selectedImage].endsWith('.mp4') ? (
+                            {allImages[selectedImage].endsWith(".mp4") ? (
                                 <video
                                     src={allImages[selectedImage]}
                                     autoPlay
@@ -121,6 +130,7 @@ export function ProductPage({
                                     src={allImages[selectedImage]}
                                     alt={product.name}
                                     className="w-full h-full object-cover"
+                                    priority="high"
                                 />
                             )}
 
@@ -155,7 +165,7 @@ export function ProductPage({
                                             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-red-500 z-10" />
                                         </>
                                     )}
-                                    {image.endsWith('.mp4') ? (
+                                    {image.endsWith(".mp4") ? (
                                         <video
                                             src={image}
                                             autoPlay
@@ -169,6 +179,7 @@ export function ProductPage({
                                             src={image}
                                             alt={`${product.name} ${index + 1}`}
                                             className="w-full h-full object-cover"
+                                            priority="medium"
                                         />
                                     )}
                                     <div className="absolute bottom-0 left-0 right-0 bg-white/70 px-1 py-0.5 text-[8px] text-black/50 text-center">
@@ -380,7 +391,7 @@ export function ProductPage({
                                 </button>
                             </div>
                             <div className="mt-2 text-[10px] text-black/30 uppercase tracking-wider text-center">
-                                MAX: UNLIMITED
+                                MAX: 10
                             </div>
                         </div>
 

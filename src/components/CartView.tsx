@@ -196,6 +196,7 @@ export function CartView({ cart, products, onClose, onUpdateQuantity, onRemoveIt
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover"
+                            priority="low"
                           />
                           {/* Crosshair */}
                           <div className="absolute inset-0 pointer-events-none">

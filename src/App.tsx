@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Volume2, VolumeX } from "lucide-react";
 import { Navbar } from "./components/Navbar";
 import { ProductCard, Product } from "./components/ProductCard";
 import { ProductPage } from "./components/ProductPage";
@@ -11,12 +12,15 @@ import { CartView } from "./components/CartView";
 import { Footer } from "./components/Footer";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner@2.0.3";
+import { Button } from "./components/ui/button";
+import { NavigationProvider } from "./contexts/NavigationContext";
+import { imagePreloader, extractAllImageUrls } from "./services/imagePreloader";
 import bannerImage from "./assets/2f04bf86489c8bed8bdae3bfe555bd75f7eba7f1.webp";
 
 const PRODUCTS: Product[] = [
     {
         id: "1",
-        name: "Classic Polo Shirt",
+        name: "Classic Polo",
         description: "Premium red polo • Embroidered garage logo",
         longDescription:
             "Premium quality polo shirt featuring the iconic Pretty Tony's Auto Garage embroidered logo. Crafted from high-grade cotton blend for superior comfort and durability. Perfect for garage visits, car meets, or everyday wear. Limited edition design exclusive to our garage.",
@@ -24,8 +28,8 @@ const PRODUCTS: Product[] = [
         originalPrice: 88.88,
         image: "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo.mp4",
         additionalImages: [
-            "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo.webp",
             "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo_2.mp4",
+            "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_polo.webp",
         ],
         sizes: ["S", "M", "L", "XL", "XXL"],
     },
@@ -56,8 +60,19 @@ const PRODUCTS: Product[] = [
         ],
         sizes: ["S", "M", "L", "XL", "XXL"],
     },
+    {
+        id: "4",
+        name: "Pretty Tony Album",
+        description: "Digital music album • Instant download",
+        longDescription:
+            "IF I COULD • SWIM • HUSTLE & FLOW • HOT WHEELS • WAITIN' 4 (TIME) • INTERLUDE • STUCK W. ME • C.G.R (CAN'T GET RIGHT) • MVP • NUNYA",
+        price: 10.0,
+        originalPrice: 11.11,
+        image: "https://nrayivs88v89b9qt.public.blob.vercel-storage.com/pretty_tony_album.webp",
+        additionalImages: [],
+    },
     // {
-    //     id: "4",
+    //     id: "5",
     //     name: "Raffle Tickets",
     //     description: "Win exclusive prizes • Multiple entry options",
     //     longDescription:
@@ -92,7 +107,7 @@ const PRODUCTS: Product[] = [
     // },
 ];
 
-export default function App() {
+function AppContent() {
     const [selectedProductId, setSelectedProductId] = useState<string | null>(
         null
     );
@@ -100,8 +115,24 @@ export default function App() {
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
     const [showCart, setShowCart] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAudioMuted, setIsAudioMuted] = useState(true);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     useEffect(() => {
+        // Preload all product images in the background
+        const preloadImages = async () => {
+            try {
+                const allImageUrls = extractAllImageUrls(PRODUCTS);
+                // Preload images with medium priority to not block other loading
+                await imagePreloader.preloadImages(allImageUrls, { priority: 'medium' });
+            } catch (error) {
+                // Silently handle preload errors - images will load normally if preload fails
+            }
+        };
+
+        // Start preloading immediately
+        preloadImages();
+
         // Show loading screen, then welcome modal
         const loadingTimer = setTimeout(() => {
             setIsLoading(false);
@@ -212,6 +243,31 @@ export default function App() {
         }
     };
 
+    const handleWelcomeModalClose = () => {
+        setShowWelcomeModal(false);
+        // Play audio when modal closes
+        if (audioRef.current) {
+            setIsAudioMuted(false);
+            audioRef.current.play().catch((error) => {
+                console.log("Audio playback failed:", error);
+            });
+        }
+    };
+
+    const toggleAudio = () => {
+        if (audioRef.current) {
+            if (isAudioMuted) {
+                audioRef.current.play().catch((error) => {
+                    console.log("Audio playback failed:", error);
+                });
+                setIsAudioMuted(false);
+            } else {
+                audioRef.current.pause();
+                setIsAudioMuted(true);
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background relative">
             {isLoading && <LoadingScreen />}
@@ -219,7 +275,7 @@ export default function App() {
             <TechnicalGrid />
 
             {showWelcomeModal && (
-                <WelcomeModal onClose={() => setShowWelcomeModal(false)} />
+                <WelcomeModal onClose={handleWelcomeModalClose} />
             )}
 
             <Navbar
@@ -327,9 +383,49 @@ export default function App() {
                 />
             )}
 
+            {/* Background Audio */}
+            <audio
+                ref={audioRef}
+                loop
+                preload="auto"
+                style={{ display: "none" }}
+            >
+                <source
+                    src="https://nrayivs88v89b9qt.public.blob.vercel-storage.com/hotwheels.mp3"
+                    type="audio/mpeg"
+                />
+                Your browser does not support the audio element.
+            </audio>
+
+            {/* Floating Music Control */}
+            {!showWelcomeModal && !isLoading && (
+                <button
+                    onClick={toggleAudio}
+                    className="fixed bottom-4 right-4 p-3 border-2 border-black/20 bg-white/80 hover:bg-white hover:border-red-500 hover:text-red-500 transition-all z-50 backdrop-blur-sm shadow-lg"
+                    aria-label={isAudioMuted ? "Play music" : "Pause music"}
+                    style={{
+                        borderRadius: "4px",
+                    }}
+                >
+                    {isAudioMuted ? (
+                        <VolumeX className="w-5 h-5 text-black" />
+                    ) : (
+                        <Volume2 className="w-5 h-5 text-black" />
+                    )}
+                </button>
+            )}
+
             <Toaster />
             <Analytics />
             <SpeedInsights />
         </div>
+    );
+}
+
+export default function App() {
+    return (
+        <NavigationProvider>
+            <AppContent />
+        </NavigationProvider>
     );
 }
